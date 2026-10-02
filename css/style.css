@@ -47,11 +47,11 @@ html, body {
 .mm-node.branch-apps .mm-node-rect { stroke: var(--accent-yellow); stroke-opacity: 0.6; }
 .mm-node.branch-caps .mm-node-rect { stroke: var(--accent-blue); stroke-opacity: 0.6; }
 
-/* INCREASED FONT SIZES HERE */
-.mm-label { fill: var(--node-text); font-size: 16px; pointer-events: none; dominant-baseline: central; text-anchor: middle; }
+/* INCREASE FONT SIZES HERE */
+.mm-label { fill: var(--node-text); font-size: 20px; pointer-events: none; dominant-baseline: central; text-anchor: middle; }
 .mm-label.branch-root { font-size: 24px; font-weight: bold; fill: var(--text-color); }
-.mm-label.branch-aspect { font-size: 22px; font-weight: bold; }
-.mm-toggle { fill: var(--text-dimmed); font-size: 18px; font-family: monospace; dominant-baseline: central; text-anchor: middle; pointer-events: all; cursor: pointer; }
+.mm-label.branch-aspect { font-size: 28px; font-weight: bold; }
+.mm-toggle { fill: var(--text-dimmed); font-size: 22px; font-family: monospace; dominant-baseline: central; text-anchor: middle; pointer-events: all; cursor: pointer; }
 .mm-toggle:hover { fill: var(--node-text); }
 
 .daily-mode-active .mm-node:not(.daily) { opacity: 0.15; transition: opacity 0.4s ease; }

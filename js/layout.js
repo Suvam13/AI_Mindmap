@@ -29,19 +29,19 @@ MM.layout = (function() {
     if (depth === 0) { // Root
       w = 320; h = 60;
     } else if (depth === 1) { // Aspect
-      const lines = wrapText(node.label, 24); // Allow wider for aspects
+      const lines = wrapText(node.label, 20); // Slightly less chars per line because font is bigger
       node._wrappedText = lines;
       const maxLineLen = Math.max(...lines.map(l => l.length));
-      w = Math.max(220, maxLineLen * 10.5 + 45);
-      h = lines.length * 24 + 30; 
+      w = Math.max(220, maxLineLen * 13.5 + 50); // Increased multiplier for 28px font
+      h = lines.length * 30 + 35; // Increased line height for 28px font
     } else {
-      const MAX_CHARS = 16; // Max chars per line for normal nodes
-      const CHAR_W = 9.5;
-      const LINE_H = 18;
-      const PAD = 25;
+      const MAX_CHARS = 14; // Less chars per line because font is bigger
+      const CHAR_W = 12; // Increased multiplier for 20px font
+      const LINE_H = 24; // Increased line height for 20px font
+      const PAD = 30;
       
       const lines = wrapText(node.label, MAX_CHARS);
-      node._wrappedText = lines; // Store wrapped lines for renderer
+      node._wrappedText = lines; 
       
       const maxLineLen = Math.max(...lines.map(l => l.length));
       w = Math.max(100, maxLineLen * CHAR_W + PAD);
@@ -159,7 +159,7 @@ MM.layout = (function() {
       layoutLeft(tech, techX, 0, state, 1, 'tech', results);
     }
     if (apps) {
-      const appsX = 700; const appsSize = getSize(apps, 1); // FIXED TYPO
+      const appsX = 700; const appsSize = getSize(apps, 1);
       results.nodes.push({ id: apps.id, x: appsX, y: 0, w: appsSize.w, h: appsSize.h, data: apps, depth: 1, branch: 'apps' });
       results.links.push({ source: { x: 0, y: 0 }, target: { x: appsX, y: 0 }, branch: 'apps' });
       layoutRight(apps, appsX, 0, state, 1, 'apps', results);

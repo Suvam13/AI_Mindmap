@@ -10,8 +10,8 @@ MM.render = (function() {
   const STRAND_WIDTH = 1.5;
   const GLOW_WIDTH = 6;
 
-  const ROOT_BOX_W = 600;
-  const ROOT_BOX_H = 200;
+  const ROOT_BOX_W = 500;
+  const ROOT_BOX_H = 150;
 
   const ROOT_GLOW_PAD = 60;
 
@@ -154,7 +154,7 @@ MM.render = (function() {
             display: block;
             font-family: Arial, Helvetica, sans-serif;
             font-weight: 800;
-            font-size: 56px;
+            font-size: 40px;
             line-height: 0.95;
             letter-spacing: 2px;
             text-transform: uppercase;
