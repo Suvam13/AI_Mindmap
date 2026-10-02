@@ -1,0 +1,80 @@
+/* =========================================
+   CSS Custom Properties (Theme)
+   ========================================= */
+:root {
+  --bg-color: #0f172a;
+  --text-color: #e2e8f0;
+  --text-dimmed: #94a3b8;
+  --accent-red: #ef4444;
+  --accent-blue: #3b82f6;
+  --accent-yellow: #f59e0b;
+  --node-bg: #1e293b;
+  --node-border: #334155;
+  --node-text: #f8fafc;
+  --node-radius: 8px;
+  --wire-strand-width: 1.5px;
+  --wire-glow-width: 6px;
+  --wire-ribbon-gap: 4px;
+  --panel-bg: #1e293b;
+  --panel-border: #334155;
+  --btn-bg: #334155;
+  --btn-text: #e2e8f0;
+  --btn-active-bg: #475569;
+  --btn-active-text: #ffffff;
+  --neon-cyan: #00f3ff;
+}
+
+html, body {
+  margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden;
+  background-color: var(--bg-color); color: var(--text-color);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app { position: relative; width: 100%; height: 100%; }
+
+#mindmap-svg { display: block; width: 100%; height: 100%; background-color: var(--bg-color); cursor: grab; }
+#mindmap-svg:active { cursor: grabbing; }
+
+.wire-glow { fill: none; stroke-linecap: round; opacity: 0.3; }
+.wire-strand { fill: none; stroke-linecap: round; opacity: 0.9; }
+
+.mm-node { cursor: pointer; }
+.mm-node-rect { fill: var(--node-bg); stroke: var(--node-border); stroke-width: 1.5; rx: var(--node-radius); ry: var(--node-radius); transition: fill 0.2s ease, stroke 0.2s ease; }
+.mm-node:hover .mm-node-rect { fill: var(--btn-active-bg); stroke: var(--text-dimmed); }
+.mm-node.branch-tech .mm-node-rect { stroke: var(--accent-red); stroke-opacity: 0.6; }
+.mm-node.branch-apps .mm-node-rect { stroke: var(--accent-yellow); stroke-opacity: 0.6; }
+.mm-node.branch-caps .mm-node-rect { stroke: var(--accent-blue); stroke-opacity: 0.6; }
+
+/* INCREASED FONT SIZES HERE */
+.mm-label { fill: var(--node-text); font-size: 16px; pointer-events: none; dominant-baseline: central; text-anchor: middle; }
+.mm-label.branch-root { font-size: 24px; font-weight: bold; fill: var(--text-color); }
+.mm-label.branch-aspect { font-size: 22px; font-weight: bold; }
+.mm-toggle { fill: var(--text-dimmed); font-size: 18px; font-family: monospace; dominant-baseline: central; text-anchor: middle; pointer-events: all; cursor: pointer; }
+.mm-toggle:hover { fill: var(--node-text); }
+
+.daily-mode-active .mm-node:not(.daily) { opacity: 0.15; transition: opacity 0.4s ease; }
+.daily-mode-active .wire-strand, .daily-mode-active .wire-glow { opacity: 0.05; transition: opacity 0.4s ease; }
+.mm-node, .wire-strand, .wire-glow { transition: opacity 0.4s ease; }
+
+#ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+#ui-top-left { position: absolute; top: 20px; left: 20px; display: flex; flex-direction: column; gap: 10px; pointer-events: auto; }
+#ui-bottom-right { position: absolute; bottom: 20px; right: 20px; display: flex; align-items: center; gap: 10px; pointer-events: auto; }
+
+.ui-btn { background-color: var(--btn-bg); color: var(--btn-text); border: 1px solid var(--node-border); padding: 10px 15px; border-radius: 6px; font-family: inherit; font-size: 14px; cursor: pointer; outline: none; transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
+.ui-btn:hover { background-color: var(--btn-active-bg); }
+.ui-btn[aria-pressed="true"] { background-color: var(--accent-blue); color: #ffffff; border-color: var(--accent-blue); }
+.ui-btn-round { width: 40px; height: 40px; padding: 0; border-radius: 50%; font-size: 20px; display: flex; align-items: center; justify-content: center; line-height: 1; }
+
+#detail-panel { position: absolute; top: 20px; right: 20px; height: 50vh; max-height: 450px; width: 320px; background-color: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 20; overflow-y: auto; pointer-events: auto; display: flex; flex-direction: column; gap: 15px; }
+#btn-close-panel { align-self: flex-end; width: 30px; height: 30px; padding: 0; border-radius: 50%; font-size: 18px; display: flex; align-items: center; justify-content: center; line-height: 1; margin-bottom: 10px; }
+#panel-title { margin: 0; font-size: 22px; color: var(--node-text); }
+#panel-desc { margin: 0; font-size: 15px; line-height: 1.5; color: var(--text-dimmed); }
+.panel-badge { background-color: var(--accent-yellow); color: #000000; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; align-self: flex-start; }
+#panel-links h3 { margin: 0 0 10px 0; font-size: 16px; color: var(--node-text); }
+#panel-links-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+#panel-links-list li { background-color: var(--btn-bg); padding: 8px 12px; border-radius: 6px; font-size: 14px; cursor: pointer; transition: background-color 0.2s; }
+#panel-links-list li:hover { background-color: var(--btn-active-bg); }
+
+.hidden { display: none !important; }
