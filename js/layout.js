@@ -1,17 +1,15 @@
 window.MM = window.MM || {};
-
-MM.layout = (function() {
-  const H_STEP = 280; 
-  const V_STEP = 220; 
+MM.layout = (function () {
+  const H_STEP = 320;
+  const V_STEP = 240;
   const GAP = 20;
 
-  // Word wrap utility
   function wrapText(text, maxChars) {
+    if (!text) return [''];
     const words = text.split(' ');
     const lines = [];
     let currentLine = '';
-
-    words.forEach(word => {
+    words.forEach((word) => {
       if ((currentLine + ' ' + word).trim().length > maxChars) {
         if (currentLine) lines.push(currentLine.trim());
         currentLine = word;
@@ -23,27 +21,25 @@ MM.layout = (function() {
     return lines;
   }
 
-  // Node size heuristics with wrapping
   function getSize(node, depth) {
     let w, h;
-    if (depth === 0) { // Root
-      w = 320; h = 60;
-    } else if (depth === 1) { // Aspect
-      const lines = wrapText(node.label, 20); // Slightly less chars per line because font is bigger
+    if (depth === 0) {
+      w = 500;
+      h = 150;
+    } else if (depth === 1) {
+      const lines = wrapText(node.label, 20);
       node._wrappedText = lines;
-      const maxLineLen = Math.max(...lines.map(l => l.length));
-      w = Math.max(220, maxLineLen * 13.5 + 50); // Increased multiplier for 28px font
-      h = lines.length * 30 + 35; // Increased line height for 28px font
+      const maxLineLen = Math.max(...lines.map((line) => line.length));
+      w = Math.max(220, maxLineLen * 13.5 + 50);
+      h = lines.length * 30 + 35;
     } else {
-      const MAX_CHARS = 14; // Less chars per line because font is bigger
-      const CHAR_W = 12; // Increased multiplier for 20px font
-      const LINE_H = 24; // Increased line height for 20px font
+      const MAX_CHARS = 14;
+      const CHAR_W = 12;
+      const LINE_H = 24;
       const PAD = 30;
-      
       const lines = wrapText(node.label, MAX_CHARS);
-      node._wrappedText = lines; 
-      
-      const maxLineLen = Math.max(...lines.map(l => l.length));
+      node._wrappedText = lines;
+      const maxLineLen = Math.max(...lines.map((line) => line.length));
       w = Math.max(100, maxLineLen * CHAR_W + PAD);
       h = lines.length * LINE_H + PAD;
     }
@@ -54,7 +50,7 @@ MM.layout = (function() {
     if (!state.expandedNodes.has(node.id)) return [];
     let children = node.children || [];
     if (!state.goDeeper) {
-      children = children.filter(c => c.tier !== 2);
+      children = children.filter((c) => c.tier !== 2);
     }
     return children;
   }
@@ -95,12 +91,24 @@ MM.layout = (function() {
     const children = getVisibleChildren(node, state);
     if (children.length === 0) return;
     const nextX = x + H_STEP;
-    const totalHeight = children.reduce((sum, c, i) => sum + c._layoutHeight + (i < children.length - 1 ? GAP : 0), 0);
+    const totalHeight = children.reduce(
+      (sum, c, i) => sum + c._layoutHeight + (i < children.length - 1 ? GAP : 0),
+      0
+    );
     let currentY = y - totalHeight / 2;
-    children.forEach(child => {
+    children.forEach((child) => {
       const childY = currentY + child._layoutHeight / 2;
       const size = getSize(child, depth + 1);
-      results.nodes.push({ id: child.id, x: nextX, y: childY, w: size.w, h: size.h, data: child, depth: depth + 1, branch });
+      results.nodes.push({
+        id: child.id,
+        x: nextX,
+        y: childY,
+        w: size.w,
+        h: size.h,
+        data: child,
+        depth: depth + 1,
+        branch
+      });
       results.links.push({ source: { x, y }, target: { x: nextX, y: childY }, branch });
       layoutRight(child, nextX, childY, state, depth + 1, branch, results);
       currentY += child._layoutHeight + GAP;
@@ -111,12 +119,24 @@ MM.layout = (function() {
     const children = getVisibleChildren(node, state);
     if (children.length === 0) return;
     const nextX = x - H_STEP;
-    const totalHeight = children.reduce((sum, c, i) => sum + c._layoutHeight + (i < children.length - 1 ? GAP : 0), 0);
+    const totalHeight = children.reduce(
+      (sum, c, i) => sum + c._layoutHeight + (i < children.length - 1 ? GAP : 0),
+      0
+    );
     let currentY = y - totalHeight / 2;
-    children.forEach(child => {
+    children.forEach((child) => {
       const childY = currentY + child._layoutHeight / 2;
       const size = getSize(child, depth + 1);
-      results.nodes.push({ id: child.id, x: nextX, y: childY, w: size.w, h: size.h, data: child, depth: depth + 1, branch });
+      results.nodes.push({
+        id: child.id,
+        x: nextX,
+        y: childY,
+        w: size.w,
+        h: size.h,
+        data: child,
+        depth: depth + 1,
+        branch
+      });
       results.links.push({ source: { x, y }, target: { x: nextX, y: childY }, branch });
       layoutLeft(child, nextX, childY, state, depth + 1, branch, results);
       currentY += child._layoutHeight + GAP;
@@ -127,12 +147,24 @@ MM.layout = (function() {
     const children = getVisibleChildren(node, state);
     if (children.length === 0) return;
     const nextY = y + V_STEP;
-    const totalWidth = children.reduce((sum, c, i) => sum + c._layoutWidth + (i < children.length - 1 ? GAP : 0), 0);
+    const totalWidth = children.reduce(
+      (sum, c, i) => sum + c._layoutWidth + (i < children.length - 1 ? GAP : 0),
+      0
+    );
     let currentX = x - totalWidth / 2;
-    children.forEach(child => {
+    children.forEach((child) => {
       const childX = currentX + child._layoutWidth / 2;
       const size = getSize(child, depth + 1);
-      results.nodes.push({ id: child.id, x: childX, y: nextY, w: size.w, h: size.h, data: child, depth: depth + 1, branch });
+      results.nodes.push({
+        id: child.id,
+        x: childX,
+        y: nextY,
+        w: size.w,
+        h: size.h,
+        data: child,
+        depth: depth + 1,
+        branch
+      });
       results.links.push({ source: { x, y }, target: { x: childX, y: nextY }, branch });
       layoutDown(child, childX, nextY, state, depth + 1, branch, results);
       currentX += child._layoutWidth + GAP;
@@ -142,34 +174,85 @@ MM.layout = (function() {
   function compute(data, state) {
     const results = { nodes: [], links: [] };
     const rootSize = getSize(data, 0);
-    results.nodes.push({ id: data.id, x: 0, y: 0, w: rootSize.w, h: rootSize.h, data: data, depth: 0, branch: 'root' });
+    results.nodes.push({
+      id: data.id,
+      x: 0,
+      y: 0,
+      w: rootSize.w,
+      h: rootSize.h,
+      data: data,
+      depth: 0,
+      branch: 'root'
+    });
 
-    const tech = data.children.find(c => c.id === 'tech');
-    const caps = data.children.find(c => c.id === 'caps');
-    const apps = data.children.find(c => c.id === 'apps');
-
-    if (tech) { calcSubtreeHeight(tech, state, 1); tech.children.forEach(c => calcSubtreeHeight(c, state, 2)); }
-    if (apps) { calcSubtreeHeight(apps, state, 1); apps.children.forEach(c => calcSubtreeHeight(c, state, 2)); }
-    if (caps) { calcSubtreeWidth(caps, state, 1); caps.children.forEach(c => calcSubtreeWidth(c, state, 2)); }
+    const tech = data.children.find((c) => c.id === 'tech');
+    const cap = data.children.find((c) => c.id === 'cap');
+    const app = data.children.find((c) => c.id === 'app');
 
     if (tech) {
-      const techX = -700; const techSize = getSize(tech, 1);
-      results.nodes.push({ id: tech.id, x: techX, y: 0, w: techSize.w, h: techSize.h, data: tech, depth: 1, branch: 'tech' });
+      calcSubtreeHeight(tech, state, 1);
+      if (tech.children) tech.children.forEach((c) => calcSubtreeHeight(c, state, 2));
+    }
+    if (app) {
+      calcSubtreeHeight(app, state, 1);
+      if (app.children) app.children.forEach((c) => calcSubtreeHeight(c, state, 2));
+    }
+    if (cap) {
+      calcSubtreeWidth(cap, state, 1);
+      if (cap.children) cap.children.forEach((c) => calcSubtreeWidth(c, state, 2));
+    }
+
+    if (tech) {
+      const techX = -700;
+      const techSize = getSize(tech, 1);
+      results.nodes.push({
+        id: tech.id,
+        x: techX,
+        y: 0,
+        w: techSize.w,
+        h: techSize.h,
+        data: tech,
+        depth: 1,
+        branch: 'tech'
+      });
       results.links.push({ source: { x: 0, y: 0 }, target: { x: techX, y: 0 }, branch: 'tech' });
       layoutLeft(tech, techX, 0, state, 1, 'tech', results);
     }
-    if (apps) {
-      const appsX = 700; const appsSize = getSize(apps, 1);
-      results.nodes.push({ id: apps.id, x: appsX, y: 0, w: appsSize.w, h: appsSize.h, data: apps, depth: 1, branch: 'apps' });
-      results.links.push({ source: { x: 0, y: 0 }, target: { x: appsX, y: 0 }, branch: 'apps' });
-      layoutRight(apps, appsX, 0, state, 1, 'apps', results);
+
+    if (app) {
+      const appX = 700;
+      const appSize = getSize(app, 1);
+      results.nodes.push({
+        id: app.id,
+        x: appX,
+        y: 0,
+        w: appSize.w,
+        h: appSize.h,
+        data: app,
+        depth: 1,
+        branch: 'app'
+      });
+      results.links.push({ source: { x: 0, y: 0 }, target: { x: appX, y: 0 }, branch: 'app' });
+      layoutRight(app, appX, 0, state, 1, 'app', results);
     }
-    if (caps) {
-      const capsY = 400; const capsSize = getSize(caps, 1);
-      results.nodes.push({ id: caps.id, x: 0, y: capsY, w: capsSize.w, h: capsSize.h, data: caps, depth: 1, branch: 'caps' });
-      results.links.push({ source: { x: 0, y: 0 }, target: { x: 0, y: capsY }, branch: 'caps' });
-      layoutDown(caps, 0, capsY, state, 1, 'caps', results);
+
+    if (cap) {
+      const capY = 400;
+      const capSize = getSize(cap, 1);
+      results.nodes.push({
+        id: cap.id,
+        x: 0,
+        y: capY,
+        w: capSize.w,
+        h: capSize.h,
+        data: cap,
+        depth: 1,
+        branch: 'cap'
+      });
+      results.links.push({ source: { x: 0, y: 0 }, target: { x: 0, y: capY }, branch: 'cap' });
+      layoutDown(cap, 0, capY, state, 1, 'cap', results);
     }
+
     return results;
   }
 

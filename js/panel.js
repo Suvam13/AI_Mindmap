@@ -1,114 +1,130 @@
 window.MM = window.MM || {};
-
-MM.panel = (function() {
+MM.panel = (function () {
   let panelEl = null;
-  let titleEl = null;
-  let descEl = null;
-  let dailyEl = null;
-  let linksEl = null;
-  let linksListEl = null;
-  let closeBtnEl = null;
-
-  let rootData = null;
 
   function init() {
-    panelEl = document.getElementById('detail-panel');
-    titleEl = document.getElementById('panel-title');
-    descEl = document.getElementById('panel-desc');
-    dailyEl = document.getElementById('panel-daily');
-    linksEl = document.getElementById('panel-links');
-    linksListEl = document.getElementById('panel-links-list');
-    closeBtnEl = document.getElementById('btn-close-panel');
-
-    closeBtnEl.addEventListener('pointerdown', (e) => {
-      e.stopPropagation();
-      hide();
-    });
+    panelEl = document.getElementById('detail-panel') || document.querySelector('.side-panel');
+    const closeBtn =
+      document.getElementById('btn-close-panel') || document.querySelector('.panel-close-btn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', hide);
+    }
   }
 
-  // Helper to find a node by ID recursively in the data tree
-  function findNodeById(node, id) {
-    if (node.id === id) return node;
-    if (!node.children) return null;
-    for (const child of node.children) {
-      const found = findNodeById(child, id);
-      if (found) return found;
-    }
-    return null;
+  function safeArray(arr) {
+    return Array.isArray(arr) ? arr : [];
   }
 
-  function show(nodeData, data) {
-    rootData = data;
+  function show(nodeData) {
+    if (!nodeData) return;
+    if (!panelEl) {
+      panelEl = document.getElementById('detail-panel') || document.querySelector('.side-panel');
+    }
+    if (!panelEl) return;
 
-    titleEl.textContent = nodeData.label;
-    descEl.textContent = nodeData.description;
+    // Title & Description
+    const titleEl = document.getElementById('panel-title');
+    const descEl = document.getElementById('panel-desc');
+    if (titleEl) titleEl.textContent = nodeData.label || 'Details';
+    if (descEl)
+      descEl.textContent =
+        nodeData.description || nodeData.summary || nodeData.desc || 'No description available.';
 
-    // Daily badge
-    if (nodeData.daily) {
-      dailyEl.classList.remove('hidden');
-    } else {
-      dailyEl.classList.add('hidden');
+    // Daily Meeting Badge
+    const dailyEl = document.getElementById('panel-daily');
+    if (dailyEl) {
+      if (nodeData.dailyMeeting || nodeData.daily) {
+        dailyEl.classList.remove('hidden');
+      } else {
+        dailyEl.classList.add('hidden');
+      }
     }
 
-    // Related links
-    linksListEl.innerHTML = '';
-    if (nodeData.links && nodeData.links.length > 0) {
-      linksEl.classList.remove('hidden');
-      
-      nodeData.links.forEach(linkId => {
-        const linkedNode = findNodeById(rootData, linkId);
-        if (linkedNode) {
-          const li = document.createElement('li');
-          li.textContent = linkedNode.label;
-          li.setAttribute('data-link-id', linkId);
-          
-          // Click to fly to the linked node
-          li.addEventListener('pointerdown', () => {
-            flyToLinkedNode(linkId);
-          });
-          
-          linksListEl.appendChild(li);
-        }
-      });
-    } else {
-      linksEl.classList.add('hidden');
+    // Steps (How It Works)
+    const howSec = document.getElementById('panel-how');
+    const howContainer = document.getElementById('panel-how-steps');
+    const steps = safeArray(nodeData.how || nodeData.howItWorks);
+    if (howSec && howContainer) {
+      if (steps.length > 0) {
+        howContainer.innerHTML = steps
+          .map(
+            (step, idx) => `
+          <div class="step-item">
+            <span class="step-num">${idx + 1}.</span>
+            <span class="step-text">${escapeHTML(step)}</span>
+          </div>`
+          )
+          .join('');
+        howSec.classList.remove('hidden');
+      } else {
+        howSec.classList.add('hidden');
+      }
     }
 
-    // Show panel
+    // Chips (Seen In)
+    const seenSec = document.getElementById('panel-seen');
+    const seenContainer = document.getElementById('panel-seen-chips');
+    const seenItems = safeArray(nodeData.seenIn || nodeData.seenin);
+    if (seenSec && seenContainer) {
+      if (seenItems.length > 0) {
+        seenContainer.innerHTML = seenItems
+          .map((item) => `<span class="chip-pill">${escapeHTML(item)}</span>`)
+          .join('');
+        seenSec.classList.remove('hidden');
+      } else {
+        seenSec.classList.add('hidden');
+      }
+    }
+
+    // Fact / Did You Know
+    const factSec = document.getElementById('panel-fact');
+    const factText = document.getElementById('panel-fact-text');
+    const fact = nodeData.fact || nodeData.didYouKnow;
+    if (factSec && factText) {
+      if (fact) {
+        factText.textContent = fact;
+        factSec.classList.remove('hidden');
+      } else {
+        factSec.classList.add('hidden');
+      }
+    }
+
+    // Related Links
+    const linksSec = document.getElementById('panel-links');
+    const linksList = document.getElementById('panel-links-list');
+    const related = safeArray(nodeData.related);
+    if (linksSec && linksList) {
+      if (related.length > 0) {
+        linksList.innerHTML = related
+          .map((rel) => `<li>${escapeHTML(rel)}</li>`)
+          .join('');
+        linksSec.classList.remove('hidden');
+      } else {
+        linksSec.classList.add('hidden');
+      }
+    }
+
+    // Show Side Panel
     panelEl.classList.remove('hidden');
   }
 
   function hide() {
-    panelEl.classList.add('hidden');
-  }
-
-  function flyToLinkedNode(nodeId) {
-    // Find the rendered SVG group for this node
-    const nodeGroup = document.querySelector(`g[data-id="${nodeId}"]`);
-    if (nodeGroup) {
-      // Extract x and y from the transform attribute: translate(x, y)
-      const transform = nodeGroup.getAttribute('transform');
-      const match = transform.match(/translate\(([^,]+),\s*([^)]+)\)/);
-      if (match) {
-        const x = parseFloat(match[1]);
-        const y = parseFloat(match[2]);
-        
-        // Create a bounding box around the node and fly to it
-        const bbox = { x: x - 50, y: y - 50, w: 100, h: 100 };
-        if (MM.viewport && MM.viewport.flyTo) {
-          MM.viewport.flyTo(bbox, 600);
-        }
-      }
-    } else {
-      // Node is currently hidden (collapsed or tier-2). 
-      // Phase 4/5 can handle expanding parents automatically.
-      console.log(`Node ${nodeId} is currently not visible in the layout.`);
+    if (!panelEl) {
+      panelEl = document.getElementById('detail-panel') || document.querySelector('.side-panel');
+    }
+    if (panelEl) {
+      panelEl.classList.add('hidden');
     }
   }
 
-  return {
-    init: init,
-    show: show,
-    hide: hide
-  };
+  function escapeHTML(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  return { init, show, hide };
 })();

@@ -1,80 +1,389 @@
-/* =========================================
-   CSS Custom Properties (Theme)
-   ========================================= */
-:root {
-  --bg-color: #0f172a;
-  --text-color: #e2e8f0;
-  --text-dimmed: #94a3b8;
-  --accent-red: #ef4444;
-  --accent-blue: #3b82f6;
-  --accent-yellow: #f59e0b;
-  --node-bg: #1e293b;
-  --node-border: #334155;
-  --node-text: #f8fafc;
-  --node-radius: 8px;
-  --wire-strand-width: 1.5px;
-  --wire-glow-width: 6px;
-  --wire-ribbon-gap: 4px;
-  --panel-bg: #1e293b;
-  --panel-border: #334155;
-  --btn-bg: #334155;
-  --btn-text: #e2e8f0;
-  --btn-active-bg: #475569;
-  --btn-active-text: #ffffff;
-  --neon-cyan: #00f3ff;
+/* ==========================================================================
+   1. GLOBAL RESETS & BASE LAYOUT
+   ========================================================================== */
+* {
+  box-sizing: border-box;
 }
 
-html, body {
-  margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden;
-  background-color: var(--bg-color); color: var(--text-color);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
-  -webkit-tap-highlight-color: transparent;
+html, body, #app {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  background-color: #0b0f17;
+  color: #e2e8f0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-#app { position: relative; width: 100%; height: 100%; }
+/* Utility to hide dynamic components */
+.hidden {
+  display: none !important;
+}
 
-#mindmap-svg { display: block; width: 100%; height: 100%; background-color: var(--bg-color); cursor: grab; }
-#mindmap-svg:active { cursor: grabbing; }
+/* SVG Mindmap Canvas */
+#mindmap-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+}
 
-.wire-glow { fill: none; stroke-linecap: round; opacity: 0.3; }
-.wire-strand { fill: none; stroke-linecap: round; opacity: 0.9; }
+#mindmap-svg:active {
+  cursor: grabbing;
+}
+/* Wires & Glows */
+.wire-glow {
+  fill: none;
+  stroke-linecap: round;
+  opacity: 0.3;
+}
 
-.mm-node { cursor: pointer; }
-.mm-node-rect { fill: var(--node-bg); stroke: var(--node-border); stroke-width: 1.5; rx: var(--node-radius); ry: var(--node-radius); transition: fill 0.2s ease, stroke 0.2s ease; }
-.mm-node:hover .mm-node-rect { fill: var(--btn-active-bg); stroke: var(--text-dimmed); }
-.mm-node.branch-tech .mm-node-rect { stroke: var(--accent-red); stroke-opacity: 0.6; }
-.mm-node.branch-apps .mm-node-rect { stroke: var(--accent-yellow); stroke-opacity: 0.6; }
-.mm-node.branch-caps .mm-node-rect { stroke: var(--accent-blue); stroke-opacity: 0.6; }
+.wire-strand {
+  fill: none;
+  stroke-linecap: round;
+  opacity: 0.95;
+}
+/* ==========================================================================
+   2. MINDMAP SVG NODES & GRAPH GRAPHICS
+   ========================================================================== */
+.mm-node {
+  cursor: pointer;
+  /* Ensure element pointer bounds don't collapse on transform */
+  transform-box: fill-box;
+  transform-origin: center;
+}
 
-/* INCREASE FONT SIZES HERE */
-.mm-label { fill: var(--node-text); font-size: 20px; pointer-events: none; dominant-baseline: central; text-anchor: middle; }
-.mm-label.branch-root { font-size: 24px; font-weight: bold; fill: var(--text-color); }
-.mm-label.branch-aspect { font-size: 28px; font-weight: bold; }
-.mm-toggle { fill: var(--text-dimmed); font-size: 22px; font-family: monospace; dominant-baseline: central; text-anchor: middle; pointer-events: all; cursor: pointer; }
-.mm-toggle:hover { fill: var(--node-text); }
 
-.daily-mode-active .mm-node:not(.daily) { opacity: 0.15; transition: opacity 0.4s ease; }
-.daily-mode-active .wire-strand, .daily-mode-active .wire-glow { opacity: 0.05; transition: opacity 0.4s ease; }
-.mm-node, .wire-strand, .wire-glow { transition: opacity 0.4s ease; }
+.mm-node-rect {
+  fill: #1e293b;
+  stroke: rgba(255, 255, 255, 0.15);
+  stroke-width: 1.5px;
+  rx: 10px;
+  ry: 10px;
+  transition: stroke 0.2s ease, fill 0.2s ease;
+  /* Ensure the shape captures all pointer events cleanly */
+  pointer-events: visiblePainted;
+}
 
-#ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
-#ui-top-left { position: absolute; top: 20px; left: 20px; display: flex; flex-direction: column; gap: 10px; pointer-events: auto; }
-#ui-bottom-right { position: absolute; bottom: 20px; right: 20px; display: flex; align-items: center; gap: 10px; pointer-events: auto; }
+.mm-node:hover .mm-node-rect {
+  stroke: #3b82f6;
+  fill: #26334d;
+}
 
-.ui-btn { background-color: var(--btn-bg); color: var(--btn-text); border: 1px solid var(--node-border); padding: 10px 15px; border-radius: 6px; font-family: inherit; font-size: 14px; cursor: pointer; outline: none; transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
-.ui-btn:hover { background-color: var(--btn-active-bg); }
-.ui-btn[aria-pressed="true"] { background-color: var(--accent-blue); color: #ffffff; border-color: var(--accent-blue); }
-.ui-btn-round { width: 40px; height: 40px; padding: 0; border-radius: 50%; font-size: 20px; display: flex; align-items: center; justify-content: center; line-height: 1; }
+.mm-label {
+  fill: #f8fafc;
+  font-size: 13px;
+  font-weight: 500;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  user-select: none;
+}
 
-#detail-panel { position: absolute; top: 20px; right: 20px; height: 50vh; max-height: 450px; width: 320px; background-color: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 20; overflow-y: auto; pointer-events: auto; display: flex; flex-direction: column; gap: 15px; }
-#btn-close-panel { align-self: flex-end; width: 30px; height: 30px; padding: 0; border-radius: 50%; font-size: 18px; display: flex; align-items: center; justify-content: center; line-height: 1; margin-bottom: 10px; }
-#panel-title { margin: 0; font-size: 22px; color: var(--node-text); }
-#panel-desc { margin: 0; font-size: 15px; line-height: 1.5; color: var(--text-dimmed); }
-.panel-badge { background-color: var(--accent-yellow); color: #000000; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; align-self: flex-start; }
-#panel-links h3 { margin: 0 0 10px 0; font-size: 16px; color: var(--node-text); }
-#panel-links-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
-#panel-links-list li { background-color: var(--btn-bg); padding: 8px 12px; border-radius: 6px; font-size: 14px; cursor: pointer; transition: background-color 0.2s; }
-#panel-links-list li:hover { background-color: var(--btn-active-bg); }
+/* Fixed Info Button (ⓘ) */
+.mm-info-btn-group {
+  cursor: pointer;
+  pointer-events: all;
+}
 
-.hidden { display: none !important; }
+.mm-info-btn-group rect {
+  pointer-events: all;
+  fill: transparent;
+}
+
+.mm-toggle {
+  font-size: 15px;
+  font-weight: 700;
+  fill: #94a3b8;
+  opacity: 0.8;
+  pointer-events: none;
+  user-select: none;
+  transition: fill 0.2s ease, opacity 0.2s ease;
+}
+
+.mm-info-btn-group:hover .mm-toggle {
+  fill: #60a5fa;
+  opacity: 1;
+}
+
+/* Prevent text and icons from losing mouse target during movement */
+.mm-label, 
+.mm-icon, 
+.mm-toggle {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. UI OVERLAY & FLOATING CONTROLS
+   ========================================================================== */
+#ui-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+#ui-top-left {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  pointer-events: auto;
+}
+
+#ui-bottom-right {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  pointer-events: auto;
+  background: rgba(15, 23, 42, 0.75);
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+.ui-btn {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f8fafc;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.ui-btn:hover {
+  background: #334155;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.ui-btn-round {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 16px;
+}
+
+/* ==========================================================================
+   4. DETAIL SIDE PANEL (IDs matched to index.html)
+   ========================================================================== */
+#detail-panel, .side-panel {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  bottom: 20px;
+  width: 400px;
+  max-width: calc(100vw - 40px);
+  background: #121824;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  box-shadow: -10px 20px 50px rgba(0, 0, 0, 0.6);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 24px;
+  gap: 20px;
+  color: #e2e8f0;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+}
+
+/* Panel Header */
+#panel-header, .panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+#panel-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#panel-icon {
+  width: 28px;
+  height: 28px;
+  color: #60a5fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#panel-title, .panel-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+#btn-close-panel, .panel-close-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #94a3b8;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  transition: background 0.2s, color 0.2s;
+}
+
+#btn-close-panel:hover, .panel-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+/* Description Text */
+#panel-desc, .hero-summary {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+/* Section Headings */
+#detail-panel h3 {
+  margin: 0 0 10px 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+/* Daily Badge */
+.panel-badge, .daily-badge {
+  display: inline-flex;
+  background: #d97706;
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* How It Works (Step Cards) */
+.how-steps, .step-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.how-steps .step-item, .step-item {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #e2e8f0;
+}
+
+/* Chips / Tags (You've seen it in) */
+.seen-chips, .pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.seen-chips span, .chip-pill {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+/* Did You Know Callout Box */
+#panel-fact, .callout-card {
+  background: rgba(217, 119, 6, 0.08);
+  border: 1px solid rgba(217, 119, 6, 0.3);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+#panel-fact-text, .callout-body {
+  margin: 0;
+  font-size: 13px;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+/* Related Links List */
+#panel-links-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#panel-links-list li, .related-card {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #60a5fa;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+#panel-links-list li:hover {
+  background: #26334d;
+  border-color: rgba(96, 165, 250, 0.3);
+}
+
+/* Accordion Helpers */
+.accordion-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 14px;
+}
+
+.accordion-summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.accordion-summary::-webkit-details-marker {
+  display: none;
+}
+
+.accordion-content {
+  padding-top: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #94a3b8;
+}

@@ -1,58 +1,112 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>AI Mindmap</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body oncontextmenu="return false">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>AI Mindmap</title>
 
-  <div id="app">
-    <!-- Main SVG Canvas -->
-    <svg id="mindmap-svg" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="touch-action: none;">
-      <g id="world">
-        <g id="layer-links"></g>
-        <g id="layer-wires"></g>
-        <g id="layer-nodes"></g>
-        <g id="layer-title"></g>
-      </g>
-    </svg>
+    <!-- Clean External Stylesheet Link -->
+    <link rel="stylesheet" href="css/style.css" />
 
-    <!-- UI Controls Overlay -->
-    <div id="ui-overlay">
-      <!-- Top left UI is now empty, but we keep the container for future use -->
-      <div id="ui-top-left"></div>
-      
-      <div id="ui-bottom-right">
-        <button id="btn-zoom-in" class="ui-btn ui-btn-round" aria-label="Zoom in">+</button>
-        <button id="btn-zoom-out" class="ui-btn ui-btn-round" aria-label="Zoom out">−</button>
-        <button id="btn-reset-view" class="ui-btn">Reset View</button>
-        <button id="btn-collapse-all" class="ui-btn">Close All</button>
+    <!-- Lucide Icons Library -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+  </head>
+  <body oncontextmenu="return false;">
+    <div id="app">
+      <!-- Main SVG Canvas -->
+      <svg
+        id="mindmap-svg"
+        xmlns="http://www.w3.org/2000/svg"
+        width="100%"
+        height="100%"
+        style="touch-action: none"
+      >
+        <g id="world">
+          <g id="layer-links"></g>
+          <g id="layer-wires"></g>
+          <g id="layer-nodes"></g>
+          <g id="layer-title"></g>
+        </g>
+      </svg>
+
+      <!-- UI Controls Overlay -->
+      <div id="ui-overlay">
+        <div id="ui-top-left"></div>
+
+        <div id="ui-bottom-right">
+          <button
+            id="btn-zoom-in"
+            class="ui-btn ui-btn-round"
+            aria-label="Zoom in"
+          >
+            +
+          </button>
+          <button
+            id="btn-zoom-out"
+            class="ui-btn ui-btn-round"
+            aria-label="Zoom out"
+          >
+            −
+          </button>
+          <button id="btn-reset-view" class="ui-btn">Reset View</button>
+          <button id="btn-collapse-all" class="ui-btn">Close All</button>
+        </div>
+      </div>
+
+      <!-- Detail Panel -->
+      <div id="detail-panel" class="hidden">
+        <div id="panel-header">
+          <div id="panel-header-left">
+            <div id="panel-icon"></div>
+            <h2 id="panel-title"></h2>
+          </div>
+          <button
+            id="btn-close-panel"
+            class="ui-btn"
+            aria-label="Close detail panel"
+          >
+            ×
+          </button>
+        </div>
+
+        <p id="panel-desc"></p>
+
+        <div id="panel-daily" class="hidden">
+          <span class="panel-badge">Where do I meet AI daily?</span>
+        </div>
+
+        <div id="panel-how" class="hidden">
+          <h3>How it works</h3>
+          <div id="panel-how-steps" class="how-steps"></div>
+        </div>
+
+        <div id="panel-seen" class="hidden">
+          <h3>You've seen it in</h3>
+          <div id="panel-seen-chips" class="seen-chips"></div>
+        </div>
+
+        <div id="panel-fact" class="hidden">
+          <h3>Did you know?</h3>
+          <p id="panel-fact-text"></p>
+        </div>
+
+        <div id="panel-links" class="hidden">
+          <h3>Related</h3>
+          <ul id="panel-links-list"></ul>
+        </div>
       </div>
     </div>
 
-    <!-- Detail Panel -->
-    <div id="detail-panel" class="hidden">
-      <button id="btn-close-panel" class="ui-btn" aria-label="Close detail panel">×</button>
-      <h2 id="panel-title"></h2>
-      <p id="panel-desc"></p>
-      <div id="panel-daily" class="hidden">
-        <span class="panel-badge">You've probably used this</span>
-      </div>
-      <div id="panel-links" class="hidden">
-        <h3>Related</h3>
-        <ul id="panel-links-list"></ul>
-      </div>
-    </div>
-  </div>
-
-  <script src="js/data.js"></script>
-  <script src="js/layout.js"></script>
-  <script src="js/viewport.js"></script>
-  <script src="js/render.js"></script>
-  <script src="js/panel.js"></script>
-  <script src="js/main.js"></script>
-
-</body>
+    <!-- Scripts -->
+    <script src="js/data.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/viewport.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/hints.js"></script>
+    <script src="js/panel.js"></script>
+    <script src="js/main.js"></script>
+  </body>
 </html>

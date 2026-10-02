@@ -1,11 +1,12 @@
 window.MM = window.MM || {};
-
-MM.main = (function() {
+MM.main = (function () {
   const IDLE_TIMEOUT = 90000;
   let idleTimer = null;
+  let resizeTimeout = null;
 
   const state = {
-    expandedNodes: new Set(['ai']),
+    expandedNodes: new Set(['ai', 'tech', 'app', 'cap']),
+    visitedNodes: new Set(),
     goDeeper: false,
     dailyMode: false
   };
@@ -13,87 +14,146 @@ MM.main = (function() {
   function init() {
     const data = window.MINDMAP_DATA;
     if (!data) {
-      console.error("Mindmap data not found. Ensure js/data.js is loaded.");
+      console.error('Mindmap data not found. Ensure js/data.js is loaded prior to js/main.js.');
       return;
     }
 
     const svg = document.getElementById('mindmap-svg');
     const world = document.getElementById('world');
-    
-    MM.viewport.init(svg, world);
-    MM.panel.init();
+    if (!svg || !world) {
+      console.error('SVG mindmap container (#mindmap-svg or #world) missing in DOM.');
+      return;
+    }
 
+    // Initialize Viewport Engine
+    if (MM.viewport && MM.viewport.init) {
+      MM.viewport.init(svg, world);
+    }
+
+    // Initialize Side Panel
+    if (MM.panel && MM.panel.init) {
+      MM.panel.init();
+    }
+
+    // Initialize Renderer
     const layers = {
       links: document.getElementById('layer-links'),
       nodes: document.getElementById('layer-nodes')
     };
-    MM.render.init(layers, state, data);
 
+    if (MM.render && MM.render.init) {
+      MM.render.init(layers, state, data);
+    }
+
+    // Initial Layout Calculation and Render Pass
     runLayoutAndRender(true);
+
+    // Bind UI Control Overlays
     wireUI();
-    
+
+    // Resize Handler
+    window.addEventListener('resize', handleResize);
+
+    // Initialize Hints Engine
+    if (MM.hints && MM.hints.init) {
+      MM.hints.init();
+    }
+
+    // Kiosk Idle Detection
     resetIdleTimer();
-    document.addEventListener('pointerdown', resetIdleTimer);
-    document.addEventListener('pointermove', resetIdleTimer);
+    document.addEventListener('pointerdown', resetIdleTimer, { passive: true });
+    document.addEventListener('pointermove', resetIdleTimer, { passive: true });
   }
 
   function runLayoutAndRender(isInitial = false) {
+    if (!MM.layout || !MM.render) return;
     const layoutResult = MM.layout.compute(window.MINDMAP_DATA, state);
     MM.render.draw(layoutResult, isInitial);
-    if (isInitial) {
+
+    if (isInitial && MM.viewport && MM.render.calculateBBox) {
       const bbox = MM.render.calculateBBox(layoutResult.nodes);
-      setTimeout(() => MM.viewport.flyTo(bbox, 1000), 100);
+      setTimeout(() => {
+        if (MM.viewport.flyTo) {
+          MM.viewport.flyTo(bbox, 800);
+        } else if (MM.viewport.resetView) {
+          MM.viewport.resetView();
+        }
+      }, 100);
     }
   }
 
   function wireUI() {
-    document.getElementById('btn-zoom-in').addEventListener('pointerdown', (e) => {
+    bindClick('btn-zoom-in', (e) => {
       e.stopPropagation();
-      MM.viewport.zoomIn();
+      if (MM.viewport && MM.viewport.zoomIn) MM.viewport.zoomIn();
     });
-
-    document.getElementById('btn-zoom-out').addEventListener('pointerdown', (e) => {
+    bindClick('btn-zoom-out', (e) => {
       e.stopPropagation();
-      MM.viewport.zoomOut();
+      if (MM.viewport && MM.viewport.zoomOut) MM.viewport.zoomOut();
     });
-
-    document.getElementById('btn-reset-view').addEventListener('pointerdown', (e) => {
+    bindClick('btn-reset-view', (e) => {
       e.stopPropagation();
-      MM.viewport.resetView();
+      if (MM.viewport && MM.viewport.resetView) MM.viewport.resetView();
     });
-
-    document.getElementById('btn-collapse-all').addEventListener('pointerdown', (e) => {
+    bindClick('btn-collapse-all', (e) => {
       e.stopPropagation();
       collapseAll();
     });
   }
 
+  function bindClick(elementId, callback) {
+    const el = document.getElementById(elementId);
+    if (el) {
+      el.addEventListener('click', callback);
+    }
+  }
+
+  function handleResize() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      if (MM.viewport && MM.viewport.resetView) {
+        MM.viewport.resetView();
+      }
+    }, 150);
+  }
+
   function collapseAll() {
-    state.expandedNodes = new Set(['ai']);
+    state.expandedNodes = new Set(['ai', 'tech', 'app', 'cap']);
     if (MM.panel && MM.panel.hide) MM.panel.hide();
     runLayoutAndRender();
-    MM.viewport.resetView();
+    if (MM.viewport && MM.viewport.resetView) MM.viewport.resetView();
   }
 
   function resetIdleTimer() {
     clearTimeout(idleTimer);
+    if (MM.hints) {
+      if (MM.hints.hide) MM.hints.hide();
+      if (MM.hints.poke) MM.hints.poke();
+    }
     idleTimer = setTimeout(resetKiosk, IDLE_TIMEOUT);
   }
 
   function resetKiosk() {
-    state.expandedNodes = new Set(['ai']);
+    state.expandedNodes = new Set(['ai', 'tech', 'app', 'cap']);
+    state.visitedNodes = new Set();
     state.goDeeper = false;
     state.dailyMode = false;
-    
     if (MM.panel && MM.panel.hide) MM.panel.hide();
     runLayoutAndRender();
-    MM.viewport.resetView();
+    if (MM.viewport && MM.viewport.resetView) MM.viewport.resetView();
+    if (MM.hints && MM.hints.poke) MM.hints.poke();
   }
 
-  return { init: init };
+  return {
+    init: init,
+    runLayoutAndRender: runLayoutAndRender,
+    collapseAll: collapseAll,
+    getState: function () {
+      return state;
+    }
+  };
 })();
 
-// FIXED TYPO HERE
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', MM.main.init);
 } else {
