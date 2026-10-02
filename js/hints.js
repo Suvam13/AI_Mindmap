@@ -1,6 +1,7 @@
 window.MM = window.MM || {};
+
 MM.hints = (function () {
-  const IDLE_MS = 6000;
+  const IDLE_MS = 6000; // Show hints after 6 seconds of inactivity[cite: 29]
   let el = null;
   let timer = null;
 
@@ -27,16 +28,19 @@ MM.hints = (function () {
 
   function show() {
     if (!el) return;
+    
+    // Target the first unopened aspect node or any expandable closed node[cite: 29]
     const targetNode =
       document.querySelector('.branch-aspect.can-expand:not(.expanded)') ||
       document.querySelector('.can-expand:not(.expanded)');
-    if (!targetNode) return;
+    
+    if (!targetNode) return; // Everything open: nothing to show[cite: 29]
 
     const rect = targetNode.getBoundingClientRect();
     const tapEl = el.querySelector('.hint-tap');
     if (tapEl) {
-      tapEl.style.left = rect.left + rect.width / 2 + 'px';
-      tapEl.style.top = rect.top + rect.height / 2 + 'px';
+      tapEl.style.left = (rect.left + rect.width / 2) + 'px';
+      tapEl.style.top = (rect.top + rect.height / 2) + 'px';
     }
     el.classList.add('on');
   }
