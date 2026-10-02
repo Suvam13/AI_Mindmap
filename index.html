@@ -1,91 +1,58 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <title>AI Mindmap</title>
-    <link rel="stylesheet" href="css/style.css" />
-  </head>
-  <body oncontextmenu="return false;">
-    <div id="app">
-      <!-- Main SVG Canvas -->
-      <svg
-        id="mindmap-svg"
-        xmlns="http://www.w3.org/2000/svg"
-        width="100%"
-        height="100%"
-        style="touch-action: none"
-      >
-        <!-- Pan/Zoom wrapper. Viewport.js will update this group's transform attribute -->
-        <g id="world">
-          <g id="layer-links"></g>
-          <g id="layer-wires"></g>
-          <g id="layer-nodes"></g>
-          <g id="layer-title"></g>
-        </g>
-      </svg>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AI Mindmap</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body oncontextmenu="return false">
 
-      <!-- UI Controls Overlay -->
-      <div id="ui-overlay">
-        <div id="ui-top-left">
-          <button id="btn-daily" class="ui-btn" aria-pressed="false">
-            Where do I meet AI daily?
-          </button>
-          <button id="btn-deeper" class="ui-btn" aria-pressed="false">
-            Go deeper
-          </button>
-        </div>
+  <div id="app">
+    <!-- Main SVG Canvas -->
+    <svg id="mindmap-svg" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="touch-action: none;">
+      <g id="world">
+        <g id="layer-links"></g>
+        <g id="layer-wires"></g>
+        <g id="layer-nodes"></g>
+        <g id="layer-title"></g>
+      </g>
+    </svg>
 
-        <div id="ui-bottom-right">
-          <button
-            id="btn-zoom-in"
-            class="ui-btn ui-btn-round"
-            aria-label="Zoom in"
-          >
-            +
-          </button>
-          <button
-            id="btn-zoom-out"
-            class="ui-btn ui-btn-round"
-            aria-label="Zoom out"
-          >
-            −
-          </button>
-          <button id="btn-reset-view" class="ui-btn">Reset View</button>
-          <button id="btn-collapse-all" class="ui-btn">Close All</button>
-        </div>
-      </div>
-
-      <!-- Detail Panel (Hidden by default) -->
-      <div id="detail-panel" class="hidden">
-        <button
-          id="btn-close-panel"
-          class="ui-btn"
-          aria-label="Close detail panel"
-        >
-          ×
-        </button>
-        <h2 id="panel-title"></h2>
-        <p id="panel-desc"></p>
-        <div id="panel-daily" class="hidden">
-          <span class="panel-badge">You've probably used this</span>
-        </div>
-        <div id="panel-links" class="hidden">
-          <h3>Related</h3>
-          <ul id="panel-links-list"></ul>
-        </div>
+    <!-- UI Controls Overlay -->
+    <div id="ui-overlay">
+      <!-- Top left UI is now empty, but we keep the container for future use -->
+      <div id="ui-top-left"></div>
+      
+      <div id="ui-bottom-right">
+        <button id="btn-zoom-in" class="ui-btn ui-btn-round" aria-label="Zoom in">+</button>
+        <button id="btn-zoom-out" class="ui-btn ui-btn-round" aria-label="Zoom out">−</button>
+        <button id="btn-reset-view" class="ui-btn">Reset View</button>
+        <button id="btn-collapse-all" class="ui-btn">Close All</button>
       </div>
     </div>
 
-    <!-- Scripts loaded in dependency order. Classic script tags, no modules. -->
-    <script src="js/data.js"></script>
-    <script src="js/layout.js"></script>
-    <script src="js/viewport.js"></script>
-    <script src="js/render.js"></script>
-    <script src="js/panel.js"></script>
-    <script src="js/main.js"></script>
-  </body>
+    <!-- Detail Panel -->
+    <div id="detail-panel" class="hidden">
+      <button id="btn-close-panel" class="ui-btn" aria-label="Close detail panel">×</button>
+      <h2 id="panel-title"></h2>
+      <p id="panel-desc"></p>
+      <div id="panel-daily" class="hidden">
+        <span class="panel-badge">You've probably used this</span>
+      </div>
+      <div id="panel-links" class="hidden">
+        <h3>Related</h3>
+        <ul id="panel-links-list"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/viewport.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/panel.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
 </html>

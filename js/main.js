@@ -1,12 +1,11 @@
 window.MM = window.MM || {};
 
 MM.main = (function() {
-  const IDLE_TIMEOUT = 90000; // 90 seconds
+  const IDLE_TIMEOUT = 90000;
   let idleTimer = null;
 
-  // Shared Application State
   const state = {
-    expandedNodes: new Set(['ai']), // Start with root expanded to show 3 aspects
+    expandedNodes: new Set(['ai']),
     goDeeper: false,
     dailyMode: false
   };
@@ -18,7 +17,6 @@ MM.main = (function() {
       return;
     }
 
-    // 1. Initialize Modules
     const svg = document.getElementById('mindmap-svg');
     const world = document.getElementById('world');
     
@@ -31,13 +29,9 @@ MM.main = (function() {
     };
     MM.render.init(layers, state, data);
 
-    // 2. Initial Layout & Render
     runLayoutAndRender(true);
-
-    // 3. Wire UI Controls
     wireUI();
-
-    // 4. Start Idle Timer
+    
     resetIdleTimer();
     document.addEventListener('pointerdown', resetIdleTimer);
     document.addEventListener('pointermove', resetIdleTimer);
@@ -46,8 +40,6 @@ MM.main = (function() {
   function runLayoutAndRender(isInitial = false) {
     const layoutResult = MM.layout.compute(window.MINDMAP_DATA, state);
     MM.render.draw(layoutResult, isInitial);
-    
-    // If it's the initial draw, frame the whole map nicely
     if (isInitial) {
       const bbox = MM.render.calculateBBox(layoutResult.nodes);
       setTimeout(() => MM.viewport.flyTo(bbox, 1000), 100);
@@ -74,23 +66,6 @@ MM.main = (function() {
       e.stopPropagation();
       collapseAll();
     });
-
-    const btnDaily = document.getElementById('btn-daily');
-    btnDaily.addEventListener('pointerdown', (e) => {
-      e.stopPropagation();
-      state.dailyMode = !state.dailyMode;
-      const svg = document.getElementById('mindmap-svg');
-      svg.classList.toggle('daily-mode-active', state.dailyMode);
-      btnDaily.setAttribute('aria-pressed', state.dailyMode);
-    });
-
-    const btnDeeper = document.getElementById('btn-deeper');
-    btnDeeper.addEventListener('pointerdown', (e) => {
-      e.stopPropagation();
-      state.goDeeper = !state.goDeeper;
-      btnDeeper.setAttribute('aria-pressed', state.goDeeper);
-      runLayoutAndRender();
-    });
   }
 
   function collapseAll() {
@@ -109,9 +84,7 @@ MM.main = (function() {
     state.expandedNodes = new Set(['ai']);
     state.goDeeper = false;
     state.dailyMode = false;
-    document.getElementById('btn-deeper').setAttribute('aria-pressed', 'false');
-    document.getElementById('btn-daily').setAttribute('aria-pressed', 'false');
-    document.getElementById('mindmap-svg').classList.remove('daily-mode-active');
+    
     if (MM.panel && MM.panel.hide) MM.panel.hide();
     runLayoutAndRender();
     MM.viewport.resetView();
@@ -120,6 +93,7 @@ MM.main = (function() {
   return { init: init };
 })();
 
+// FIXED TYPO HERE
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', MM.main.init);
 } else {
